@@ -5,6 +5,7 @@ import type {
   ChatMessageEntity, SeminarEntity, AcademicYearEntity, SchoolEntity,
   SettingsEntity, ActivityLogEntity,
   StudentClassEntity, StudentListFileEntity,
+  LevelEntity,
 } from '@/types';
 
 export class AppDatabase extends Dexie {
@@ -25,6 +26,7 @@ export class AppDatabase extends Dexie {
   activityLogs!: Table<ActivityLogEntity, string>;
   studentClasses!: Table<StudentClassEntity, string>;
   studentListFiles!: Table<StudentListFileEntity, string>;
+  levels!: Table<LevelEntity, string>;
 
   constructor() {
     super('teacher_portfolio_db');
@@ -48,6 +50,11 @@ export class AppDatabase extends Dexie {
     this.version(2).stores({
       studentClasses: 'id, level, order, deletedAt, schoolId, academicYearId',
       studentListFiles: 'id, classId, term, deletedAt, schoolId, academicYearId',
+    });
+    this.version(3).stores({
+      levels: 'id, levelId, order, deletedAt, schoolId, academicYearId',
+      files: 'id, folderId, sectionKey, name, favorite, lastOpened, deletedAt, schoolId, academicYearId, order, levelId, *tags',
+      folders: 'id, key, sectionKey, parentFolderId, order, deletedAt, schoolId, academicYearId, levelId',
     });
   }
 }

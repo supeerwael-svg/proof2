@@ -4,8 +4,11 @@ import { FilesService, FoldersService, SectionsService } from '@/services';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/i18n/I18nContext';
 import { FileIcon } from './FileIcon';
+import { LevelBadge } from './LevelBadge';
+import { LEVEL_IDS } from '@/types';
+import { LEVEL_COLORS } from '@/config/levels';
 import { formatBytes, formatDate } from '@/utils/format';
-import type { FileEntity, FolderEntity, SectionEntity } from '@/types';
+import type { FileEntity, FolderEntity, SectionEntity, LevelId } from '@/types';
 
 interface FileCardProps {
   file: FileEntity;
@@ -20,6 +23,7 @@ export function FileCard({ file, onOpen, onChanged }: FileCardProps) {
   const [renaming, setRenaming] = useState(false);
   const [newName, setNewName] = useState(file.name);
   const [showMove, setShowMove] = useState(false);
+  const [showLevelChange, setShowLevelChange] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   const canWrite = user?.role === 'super_admin' || user?.role === 'teacher_write';
@@ -86,15 +90,14 @@ export function FileCard({ file, onOpen, onChanged }: FileCardProps) {
             <p className="text-xs text-slate-500 dark:text-slate-400">
               {formatBytes(file.size)} · {formatDate(file.createdAt, lang)}
             </p>
-            {file.tags.length > 0 && (
-              <div className="flex flex-wrap gap-1 mt-1">
-                {file.tags.slice(0, 3).map(tag => (
-                  <span key={tag} className="text-xs bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 rounded-full px-2 py-0.5">
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            )}
+            <div className="flex flex-wrap items-center gap-1 mt-1">
+              {file.levelId && <LevelBadge levelId={file.levelId} />}
+              {file.tags.slice(0, 3).map(tag => (
+                <span key={tag} className="text-xs bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 rounded-full px-2 py-0.5">
+                  {tag}
+                </span>
+              ))}
+            </div>
           </>
         )}
       </button>
@@ -126,6 +129,9 @@ export function FileCard({ file, onOpen, onChanged }: FileCardProps) {
                 <button onClick={() => { setRenaming(true); setMenuOpen(false); }} className="w-full flex items-center gap-2 px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
                   <Pencil size={16} /> {t('rename')}
                 </button>
+                <button onClick={() => { setShowLevelChange(true); setMenuOpen(false); }} className="w-full flex items-center gap-2 px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
+                  <LevelBadge levelId={file.levelId} /> {t('changeLevel')}
+                </button>
                 <button onClick={() => { setShowMove(true); setMenuOpen(false); }} className="w-full flex items-center gap-2 px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
                   <FolderInput size={16} /> {t('move')}
                 </button>
@@ -145,6 +151,70 @@ export function FileCard({ file, onOpen, onChanged }: FileCardProps) {
           onMoved={() => { setShowMove(false); onChanged(); }}
         />
       )}
+
+      {showLevelChange && (
+        <ChangeLevelModal
+          file={file}
+          onClose={() => setShowLevelChange(false)}
+          onChanged={() => { setShowLevelChange(false); onChanged(); }}
+        />
+      )}
+    </div>
+  );
+}
+
+function ChangeLevelModal({ file, onClose, onChanged }: { file: FileEntity; onClose: () => void; onChanged: () => void }) {
+  const { t } = useI18n();
+  const [selected, setSelected] = useState<LevelId | null>(file.levelId ?? null);
+
+  const apply = async () => {
+    await FilesService.updateLevel(file.id, selected);
+    onChanged();
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4" onClick={onClose}>
+      <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl max-w-sm w-full" onClick={e => e.stopPropagation()}>
+        <div className="p-4 border-b border-slate-200 dark:border-slate-700">
+          <h3 className="font-bold text-slate-800 dark:text-slate-200">{t('changeLevel')}</h3>
+          <p className="text-xs text-slate-500 truncate mt-1">{file.name}</p>
+        </div>
+        <div className="p-4 space-y-2">
+          <button
+            onClick={() => setSelected(null)}
+            className={`w-full text-start px-4 py-3 rounded-xl text-sm transition-colors border-2 ${
+              selected === null
+                ? 'border-slate-400 bg-slate-100 dark:bg-slate-700 font-semibold'
+                : 'border-transparent hover:bg-slate-100 dark:hover:bg-slate-700'
+            }`}
+          >
+            {t('unclassified')}
+          </button>
+          {LEVEL_IDS.map(lid => {
+            const colors = LEVEL_COLORS[lid];
+            return (
+              <button
+                key={lid}
+                onClick={() => setSelected(lid)}
+                className={`w-full text-start px-4 py-3 rounded-xl text-sm transition-colors border-2 flex items-center gap-3 ${
+                  selected === lid
+                    ? `${colors.border} ${colors.bgLight} font-semibold`
+                    : 'border-transparent hover:bg-slate-100 dark:hover:bg-slate-700'
+                }`}
+              >
+                <span className={`w-8 h-8 rounded-lg ${colors.bg} text-white flex items-center justify-center text-xs font-bold`}>
+                  {lid}
+                </span>
+                <span className={colors.text}>{lid}</span>
+              </button>
+            );
+          })}
+        </div>
+        <div className="p-4 border-t border-slate-200 dark:border-slate-700 flex gap-2">
+          <button onClick={apply} className="btn-primary flex-1">{t('save')}</button>
+          <button onClick={onClose} className="btn-secondary">{t('cancel')}</button>
+        </div>
+      </div>
     </div>
   );
 }

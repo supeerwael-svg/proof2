@@ -3,11 +3,13 @@
 
 import { db } from '@/db/database';
 import { uuidGen, nowGen } from '@/config/seed';
+import { LEVEL_DEFAULTS } from '@/config/levels';
 import type {
   BaseEntity, UserEntity, FileEntity, FolderEntity, SectionEntity,
   AnnouncementEntity, ForumTopicEntity, ForumReplyEntity, ChatRoomEntity,
   ChatMessageEntity, SeminarEntity, AcademicYearEntity, SchoolEntity,
   SettingsEntity, ActivityLogEntity, UserRole, Permission, InviteCodeEntity,
+  LevelEntity, LevelId,
 } from '@/types';
 
 const DEFAULT_SCHOOL_ID = 'school-001';
@@ -139,7 +141,7 @@ export const FilesService = {
       .toArray();
   },
 
-  async uploadFile(folderId: string, sectionKey: string, file: File, tags: string[], ownerId: string, order?: number): Promise<FileEntity> {
+  async uploadFile(folderId: string, sectionKey: string, file: File, tags: string[], ownerId: string, order?: number, levelId?: LevelId | null): Promise<FileEntity> {
     const existing = await db.files.where('folderId').equals(folderId).and(f => f.deletedAt === null).count();
     let blob: Blob = file;
     // Compress images on upload
@@ -158,6 +160,8 @@ export const FilesService = {
       lastOpened: null,
       order: order ?? existing,
       linkedFileId: null,
+      levelId: levelId ?? null,
+      linkedLevelIds: levelId ? [levelId] : [],
     }, ownerId);
     await db.files.add(entity);
     return entity;
@@ -260,6 +264,44 @@ export const FilesService = {
 
   async moveFile(id: string, targetFolderId: string, targetSectionKey: string): Promise<void> {
     await db.files.update(id, { folderId: targetFolderId, sectionKey: targetSectionKey, updatedAt: nowGen() });
+  },
+
+  async updateLevel(id: string, levelId: LevelId | null): Promise<void> {
+    await db.files.update(id, { levelId, updatedAt: nowGen() });
+  },
+
+  async getFilesBySectionAndLevel(sectionKey: string, levelId: LevelId): Promise<FileEntity[]> {
+    return db.files
+      .where('sectionKey').equals(sectionKey)
+      .and(f => f.deletedAt === null && (f.levelId === levelId || (f.linkedLevelIds ?? []).includes(levelId)))
+      .toArray();
+  },
+
+  async getFilesByFolderAndLevel(folderId: string, levelId: LevelId): Promise<FileEntity[]> {
+    const all = await db.files.where('folderId').equals(folderId).and(f => f.deletedAt === null).toArray();
+    return all.filter(f => (f.levelId === levelId || (f.linkedLevelIds ?? []).includes(levelId)));
+  },
+
+  async getUnclassifiedBySection(sectionKey: string): Promise<FileEntity[]> {
+    return db.files
+      .where('sectionKey').equals(sectionKey)
+      .and(f => f.deletedAt === null && !f.levelId)
+      .toArray();
+  },
+
+  async bulkAssignLevel(fileIds: string[], levelId: LevelId): Promise<void> {
+    for (const id of fileIds) {
+      await db.files.update(id, { levelId, updatedAt: nowGen() });
+    }
+  },
+
+  async getLevelStats(sectionKey: string, levelId: LevelId): Promise<{ count: number; lastUpdate: number }> {
+    const files = await db.files
+      .where('sectionKey').equals(sectionKey)
+      .and(f => f.deletedAt === null && (f.levelId === levelId || (f.linkedLevelIds ?? []).includes(levelId)))
+      .toArray();
+    const lastUpdate = files.reduce((max, f) => Math.max(max, f.updatedAt), 0);
+    return { count: files.length, lastUpdate };
   },
 };
 
@@ -595,7 +637,7 @@ export const StorageService = {
   async exportAll(): Promise<Blob> {
     const tables = ['users', 'inviteCodes', 'sections', 'folders', 'files', 'announcements',
       'forumTopics', 'forumReplies', 'chatRooms', 'chatMessages', 'seminars',
-      'academicYears', 'schools', 'settings', 'activityLogs'];
+      'academicYears', 'schools', 'settings', 'activityLogs', 'levels'];
     const data: Record<string, unknown[]> = {};
     for (const t of tables) {
       const records = await (db as any)[t].toArray();
@@ -634,7 +676,7 @@ export const StorageService = {
     const zip = new JSZip();
     const tables = ['users', 'inviteCodes', 'sections', 'folders', 'files', 'announcements',
       'forumTopics', 'forumReplies', 'chatRooms', 'chatMessages', 'seminars',
-      'academicYears', 'schools', 'settings', 'activityLogs'];
+      'academicYears', 'schools', 'settings', 'activityLogs', 'levels'];
     const data: Record<string, unknown[]> = {};
     const filesFolder = zip.folder('files');
     for (const t of tables) {
@@ -723,5 +765,47 @@ export const InviteCodesService = {
   },
   async delete(id: string): Promise<void> {
     await db.inviteCodes.update(id, { deletedAt: nowGen() });
+  },
+};
+
+// ---- Levels Service ----
+export const LevelsService = {
+  async getAll(): Promise<LevelEntity[]> {
+    const all = await db.levels.toArray();
+    const active = all.filter(l => l.deletedAt === null);
+    const byLevelId = new Map<string, LevelEntity>();
+    for (const l of active.sort((a, b) => a.order - b.order)) {
+      if (!byLevelId.has(l.levelId)) byLevelId.set(l.levelId, l);
+    }
+    return Array.from(byLevelId.values()).sort((a, b) => a.order - b.order);
+  },
+  async getByLevelId(levelId: LevelId): Promise<LevelEntity | undefined> {
+    const matches = await db.levels.where('levelId').equals(levelId).and(l => l.deletedAt === null).toArray();
+    return matches[0];
+  },
+  async rename(id: string, name: string, nameEn?: string, nameFr?: string): Promise<void> {
+    const patch: Record<string, unknown> = { name, updatedAt: nowGen() };
+    if (nameEn) patch.nameEn = nameEn;
+    if (nameFr) patch.nameFr = nameFr;
+    await db.levels.update(id, patch);
+  },
+  async updateColor(id: string, color: string): Promise<void> {
+    await db.levels.update(id, { color, updatedAt: nowGen() });
+  },
+  async ensureSeeded(ownerId: string): Promise<void> {
+    const existing = await db.levels.count();
+    if (existing > 0) return;
+    const entities: LevelEntity[] = (['1AM', '2AM', '3AM', '4AM'] as LevelId[]).map((levelId, i) => {
+      const defaults = LEVEL_DEFAULTS[levelId];
+      return withBase<LevelEntity>({
+        levelId,
+        name: defaults.ar,
+        nameEn: defaults.en,
+        nameFr: defaults.fr,
+        color: ['#10b981', '#0ea5e9', '#f59e0b', '#f43f5e'][i],
+        order: i,
+      }, ownerId);
+    });
+    await db.levels.bulkAdd(entities);
   },
 };

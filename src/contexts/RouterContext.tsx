@@ -1,5 +1,7 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 
+export type LevelFilter = 'ALL' | 'UNCLASSIFIED';
+
 type Route =
   | { name: 'login' }
   | { name: 'school' }
@@ -7,6 +9,7 @@ type Route =
   | { name: 'home' }
   | { name: 'sections' }
   | { name: 'section'; key: string }
+  | { name: 'section-level'; key: string; levelId: string }
   | { name: 'folder'; folderId: string }
   | { name: 'forum' }
   | { name: 'forum-topic'; topicId: string }

@@ -4,6 +4,7 @@ import { FilesService, FoldersService, SectionsService } from '@/services';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/i18n/I18nContext';
 import { FileIcon } from './FileIcon';
+import { LevelBadge } from './LevelBadge';
 import { formatBytes, getFileIconName } from '@/utils/format';
 import type { FileEntity, FolderEntity, SectionEntity } from '@/types';
 
@@ -84,6 +85,11 @@ export function FileGridCard({ file, onOpen, onChanged }: FileGridCardProps) {
         {file.favorite && (
           <span className="absolute top-1.5 start-1.5">
             <Star size={14} fill="#f59e0b" color="#f59e0b" />
+          </span>
+        )}
+        {file.levelId && (
+          <span className="absolute bottom-1.5 start-1.5">
+            <LevelBadge levelId={file.levelId} />
           </span>
         )}
       </button>

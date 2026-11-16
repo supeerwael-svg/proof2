@@ -10,6 +10,19 @@ export interface BaseEntity {
   academicYearId: string;
 }
 
+export type LevelId = '1AM' | '2AM' | '3AM' | '4AM';
+
+export const LEVEL_IDS: LevelId[] = ['1AM', '2AM', '3AM', '4AM'];
+
+export interface LevelEntity extends BaseEntity {
+  levelId: LevelId;
+  name: string;
+  nameEn: string;
+  nameFr: string;
+  color: string;
+  order: number;
+}
+
 export type UserRole = 'super_admin' | 'teacher_write' | 'teacher_read' | 'banned';
 
 export type SyncStatus = 'local' | 'pending' | 'synced';
@@ -48,6 +61,7 @@ export interface SectionEntity extends BaseEntity {
   icon: string;
   order: number;
   color?: string;
+  useLevels?: boolean;
 }
 
 export interface FolderEntity extends BaseEntity {
@@ -58,6 +72,7 @@ export interface FolderEntity extends BaseEntity {
   nameEn: string;
   nameFr: string;
   order: number;
+  levelId?: LevelId | null;
   metadata?: Record<string, unknown>;
 }
 
@@ -75,6 +90,8 @@ export interface FileEntity extends BaseEntity {
   order: number;
   linkedFileId?: string | null;
   academicYearId: string;
+  levelId?: LevelId | null;
+  linkedLevelIds?: LevelId[];
 }
 
 export interface AnnouncementEntity extends BaseEntity {

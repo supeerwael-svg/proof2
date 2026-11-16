@@ -5,6 +5,7 @@ import { SectionsService, FoldersService } from '@/services';
 import { useI18n } from '@/i18n/I18nContext';
 import { useRouter } from '@/contexts/RouterContext';
 import { Folder as FolderIcon, ChevronRight, ChevronLeft } from 'lucide-react';
+import { LevelSelector } from '@/components/LevelSelector';
 import { StudentListsPage } from '@/pages/StudentListsPage';
 import type { SectionEntity, FolderEntity } from '@/types';
 
@@ -45,6 +46,18 @@ export function SectionPage({ sectionKey }: SectionPageProps) {
   if (section.key === 'student_lists') {
     return (
       <StudentListsPage onClose={() => navigate({ name: 'sections' })} />
+    );
+  }
+
+  // Level-based sections: show level selector first
+  if (section.useLevels) {
+    return (
+      <div className="min-h-screen pb-20">
+        <Header title={title} showBack />
+        <div className="max-w-md mx-auto px-4 py-4">
+          <LevelSelector sectionKey={sectionKey} />
+        </div>
+      </div>
     );
   }
 

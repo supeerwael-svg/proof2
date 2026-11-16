@@ -4,11 +4,13 @@ import { FilesService } from '@/services';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/i18n/I18nContext';
 import { formatBytes } from '@/utils/format';
+import type { LevelId } from '@/types';
 
 interface FileUploaderProps {
   folderId: string;
   sectionKey: string;
   onUploaded: () => void;
+  levelId?: LevelId | null;
 }
 
 interface UploadProgress {
@@ -17,7 +19,7 @@ interface UploadProgress {
   status: 'pending' | 'uploading' | 'done' | 'error';
 }
 
-export function FileUploader({ folderId, sectionKey, onUploaded }: FileUploaderProps) {
+export function FileUploader({ folderId, sectionKey, onUploaded, levelId = null }: FileUploaderProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -64,7 +66,7 @@ export function FileUploader({ folderId, sectionKey, onUploaded }: FileUploaderP
         prog[i].status = 'uploading';
         setProgress([...prog]);
         try {
-          await FilesService.uploadFile(folderId, sectionKey, selectedFiles[i], tags, user.id);
+          await FilesService.uploadFile(folderId, sectionKey, selectedFiles[i], tags, user.id, undefined, levelId);
           prog[i].status = 'done';
         } catch {
           prog[i].status = 'error';

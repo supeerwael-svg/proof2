@@ -8,6 +8,7 @@ import { LoginPage } from '@/pages/LoginPage';
 import { HomePage } from '@/pages/HomePage';
 import { SectionsPage } from '@/pages/SectionsPage';
 import { SectionPage } from '@/pages/SectionPage';
+import { SectionLevelPage } from '@/pages/SectionLevelPage';
 import { FolderPage } from '@/pages/FolderPage';
 import { ForumPage } from '@/pages/ForumPage';
 import { SettingsPage } from '@/pages/SettingsPage';
@@ -29,6 +30,7 @@ function RouteRenderer() {
     case 'home': return <HomePage />;
     case 'sections': return <SectionsPage />;
     case 'section': return <SectionPage sectionKey={route.key} />;
+    case 'section-level': return <SectionLevelPage sectionKey={route.key} levelId={route.levelId} />;
     case 'folder': return <FolderPage folderId={route.folderId} />;
     case 'forum': return <ForumPage />;
     case 'seminars': return <SeminarsPage />;

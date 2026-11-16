@@ -29,14 +29,18 @@
       "order": 1,
       "folders": [
         {
-          "key": "lessons_root",
-          "name": "المستويات",
-          "nameEn": "Levels",
-          "nameFr": "Niveaux",
-          "generate": { "type": "levels_subfolders", "subfolders": ["lessons_docs", "lessons_notes"], "subfolderNames": [
-            { "ar": "الدروس", "en": "Lessons", "fr": "Leçons" },
-            { "ar": "المذكرات", "en": "Notes", "fr": "Notes" }
-          ], "subjects": ["history", "geo", "pe"] }
+          "key": "lessons_docs",
+          "name": "الدروس",
+          "nameEn": "Lessons",
+          "nameFr": "Leçons",
+          "generate": { "type": "levels_subjects", "subjects": ["history", "geo", "pe"] }
+        },
+        {
+          "key": "lessons_notes",
+          "name": "المذكرات",
+          "nameEn": "Notes",
+          "nameFr": "Notes",
+          "generate": { "type": "levels_subjects", "subjects": ["history", "geo", "pe"] }
         }
       ]
     },
@@ -63,27 +67,31 @@
       "nameFr": "Devoirs & Examens",
       "icon": "ClipboardCheck",
       "order": 3,
+      "useLevels": true,
       "folders": [
         {
           "key": "ex_diagnostic",
           "name": "التقديم التشخيصي",
           "nameEn": "Diagnostic Assessment",
-          "nameFr": "Évaluation Diagnostique",
-          "generate": { "type": "levels_subjects", "subjects": ["history_geo", "civic_ed"] }
+          "nameFr": "Évaluation Diagnostique"
         },
         {
           "key": "ex_tests",
           "name": "الفروض",
           "nameEn": "Tests",
-          "nameFr": "Devoirs",
-          "generate": { "type": "levels_subjects_chapters", "subjects": ["history", "geo", "civic_ed", "pe"] }
+          "nameFr": "Devoirs"
         },
         {
           "key": "ex_quarterly",
           "name": "الاختبارات الفصلية",
           "nameEn": "Quarterly Exams",
-          "nameFr": "Examens Trimestriels",
-          "generate": { "type": "levels_subjects_chapters", "subjects": ["history", "geo", "civic_ed", "pe"], "suffix": " (مع الإجابة النموذجية)", "suffixEn": " (with Answer Key)", "suffixFr": " (avec Corrigé)" }
+          "nameFr": "Examens Trimestriels"
+        },
+        {
+          "key": "ex_remediation",
+          "name": "الاختبار الاستدراكي",
+          "nameEn": "Remedial Exam",
+          "nameFr": "Examen de Rattrapage"
         },
         {
           "key": "ex_bem",
@@ -91,18 +99,8 @@
           "nameEn": "BEM Exams",
           "nameFr": "Examens BEM",
           "folders": [
-            { "key": "ex_bem_hg", "name": "تاريخ وجغرافيا", "nameEn": "History & Geo", "nameFr": "Histoire-Géo" },
-            { "key": "ex_bem_pe", "name": "تربية بدنية", "nameEn": "Physical Education", "nameFr": "EPS" }
-          ]
-        },
-        {
-          "key": "ex_remediation",
-          "name": "الاختبار الاستدراكي",
-          "nameEn": "Remedial Exam",
-          "nameFr": "Examen de Rattrapage",
-          "folders": [
-            { "key": "ex_rem_hg", "name": "تاريخ وجغرافيا (مع الحلول)", "nameEn": "History & Geo (with Answers)", "nameFr": "Histoire-Géo (avec Corrigé)" },
-            { "key": "ex_rem_ce", "name": "تربية مدنية (مع الحلول)", "nameEn": "Civic Education (with Answers)", "nameFr": "Éducation Civique (avec Corrigé)" }
+            { "key": "ex_bem_hg", "name": "تاريخ وجغرافيا (مع الإجابة النموذجية)", "nameEn": "History & Geo (with Answer Key)", "nameFr": "Histoire-Géo (avec Corrigé)" },
+            { "key": "ex_bem_pe", "name": "تربية بدنية (مع الإجابة النموذجية)", "nameEn": "Physical Education (with Answer Key)", "nameFr": "EPS (avec Corrigé)" }
           ]
         }
       ]
@@ -129,10 +127,11 @@
       "nameFr": "Livres de Référence",
       "icon": "Library",
       "order": 5,
+      "useLevels": true,
       "folders": [
-        { "key": "bk_history", "name": "التاريخ", "nameEn": "History", "nameFr": "Histoire", "generate": { "type": "levels" } },
-        { "key": "bk_geo", "name": "الجغرافيا", "nameEn": "Geography", "nameFr": "Géographie", "generate": { "type": "levels" } },
-        { "key": "bk_civic", "name": "التربية المدنية", "nameEn": "Civic Education", "nameFr": "Éducation Civique", "generate": { "type": "levels" } },
+        { "key": "bk_history", "name": "التاريخ", "nameEn": "History", "nameFr": "Histoire" },
+        { "key": "bk_geo", "name": "الجغرافيا", "nameEn": "Geography", "nameFr": "Géographie" },
+        { "key": "bk_civic", "name": "التربية المدنية", "nameEn": "Civic Education", "nameFr": "Éducation Civique" },
         { "key": "bk_misc", "name": "متنوعة (ملخصات، مصطلحات)", "nameEn": "Miscellaneous", "nameFr": "Divers" }
       ]
     },
@@ -143,11 +142,12 @@
       "nameFr": "Aides Pédagogiques",
       "icon": "Map",
       "order": 6,
+      "useLevels": true,
       "folders": [
         { "key": "aid_mindmaps", "name": "الخرائط الذهنية", "nameEn": "Mind Maps", "nameFr": "Cartes Mentales" },
         { "key": "aid_geo_maps", "name": "الخرائط الجغرافية", "nameEn": "Geographic Maps", "nameFr": "Cartes Géographiques" },
         { "key": "aid_hist_maps", "name": "الخرائط التاريخية", "nameEn": "Historical Maps", "nameFr": "Cartes Historiques" },
-        { "key": "aid_photos", "name": "الصور", "nameEn": "Photos", "nameFr": "Photos", "generate": { "type": "levels" } },
+        { "key": "aid_photos", "name": "الصور", "nameEn": "Photos", "nameFr": "Photos" },
         {
           "key": "aid_blank_maps",
           "name": "الخرائط الصماء",
@@ -205,10 +205,11 @@
       "nameFr": "Audio-Visuel",
       "icon": "Video",
       "order": 10,
+      "useLevels": true,
       "folders": [
-        { "key": "av_tv", "name": "فيديوهات القنوات واليوتيوب", "nameEn": "TV & YouTube Videos", "nameFr": "Vidéos TV & YouTube", "generate": { "type": "levels" } },
-        { "key": "av_presentations", "name": "العروض التقديمية", "nameEn": "Presentations", "nameFr": "Présentations", "generate": { "type": "levels" } },
-        { "key": "av_ai", "name": "فيديوهات الذكاء الاصطناعي", "nameEn": "AI Videos", "nameFr": "Vidéos IA", "generate": { "type": "levels" } }
+        { "key": "av_tv", "name": "فيديوهات القنوات واليوتيوب", "nameEn": "TV & YouTube Videos", "nameFr": "Vidéos TV & YouTube" },
+        { "key": "av_presentations", "name": "العروض التقديمية", "nameEn": "Presentations", "nameFr": "Présentations" },
+        { "key": "av_ai", "name": "فيديوهات الذكاء الاصطناعي", "nameEn": "AI Videos", "nameFr": "Vidéos IA" }
       ]
     },
     {

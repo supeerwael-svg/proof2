@@ -244,6 +244,22 @@ export const translations = {
     copyFromT1: 'نسخ القوائم من الفصل الأول',
     copyFromT2: 'نسخ القوائم من الفصل الثاني',
     loadMore: 'تحميل المزيد',
+
+    // Levels
+    selectLevel: 'اختر المستوى',
+    allLevels: 'كل المستويات',
+    allLevelsHint: 'عرض جميع المستويات معاً',
+    level: 'المستوى',
+    moveToLevel: 'نقل إلى مستوى',
+    changeLevel: 'تغيير المستوى',
+    unclassified: 'غير مصنف',
+    unclassifiedHint: 'ملفات لم تُصنّف بعد',
+    assignLevel: 'تعيين المستوى',
+    bulkAssign: 'تعيين جماعي للمستوى',
+    assignToLevel: 'تعيين إلى مستوى',
+    levelFilter: 'تصفية حسب المستوى',
+    selectFiles: 'اختر الملفات',
+    noLevelFiles: 'لا توجد ملفات في هذا المستوى بعد',
   },
 
   en: {
@@ -479,6 +495,22 @@ export const translations = {
     copyFromT1: 'Copy lists from First Term',
     copyFromT2: 'Copy lists from Second Term',
     loadMore: 'Load more',
+
+    // Levels
+    selectLevel: 'Select Level',
+    allLevels: 'All Levels',
+    allLevelsHint: 'View all levels together',
+    level: 'Level',
+    moveToLevel: 'Move to level',
+    changeLevel: 'Change Level',
+    unclassified: 'Unclassified',
+    unclassifiedHint: 'Files not yet classified',
+    assignLevel: 'Assign Level',
+    bulkAssign: 'Bulk Assign Level',
+    assignToLevel: 'Assign to level',
+    levelFilter: 'Filter by level',
+    selectFiles: 'Select files',
+    noLevelFiles: 'No files in this level yet',
   },
 
   fr: {
@@ -714,6 +746,22 @@ export const translations = {
     copyFromT1: 'Copier les listes du Premier Trimestre',
     copyFromT2: 'Copier les listes du Deuxième Trimestre',
     loadMore: 'Charger plus',
+
+    // Levels
+    selectLevel: 'Choisir le niveau',
+    allLevels: 'Tous les niveaux',
+    allLevelsHint: 'Voir tous les niveaux ensemble',
+    level: 'Niveau',
+    moveToLevel: 'Déplacer vers le niveau',
+    changeLevel: 'Changer le niveau',
+    unclassified: 'Non classé',
+    unclassifiedHint: 'Fichiers non encore classés',
+    assignLevel: 'Attribuer le niveau',
+    bulkAssign: 'Attribution groupée',
+    assignToLevel: 'Attribuer au niveau',
+    levelFilter: 'Filtrer par niveau',
+    selectFiles: 'Sélectionner les fichiers',
+    noLevelFiles: 'Aucun fichier dans ce niveau',
   },
 };
 

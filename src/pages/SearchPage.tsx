@@ -1,23 +1,32 @@
 import { useState, useEffect } from 'react';
-import { Search, X } from 'lucide-react';
+import { Search, X, Filter } from 'lucide-react';
 import { Header } from '@/components/Header';
-import { FilesService, FoldersService } from '@/services';
+import { FilesService } from '@/services';
 import { useI18n } from '@/i18n/I18nContext';
 import { FileCard } from '@/components/FileCard';
+import { LevelBadge } from '@/components/LevelBadge';
 import { DocumentViewer } from '@/viewer/DocumentViewer';
-import type { FileEntity } from '@/types';
+import { LEVEL_IDS } from '@/types';
+import { LEVEL_COLORS } from '@/config/levels';
+import type { FileEntity, LevelId } from '@/types';
 
 export function SearchPage() {
   const { t } = useI18n();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<FileEntity[]>([]);
   const [previewFile, setPreviewFile] = useState<FileEntity | null>(null);
+  const [levelFilter, setLevelFilter] = useState<LevelId | 'ALL'>('ALL');
+  const [showFilter, setShowFilter] = useState(false);
 
   const search = async (q: string) => {
     setQuery(q);
     if (q.trim().length < 2) { setResults([]); return; }
     setResults(await FilesService.search(q.trim()));
   };
+
+  const filteredResults = levelFilter === 'ALL'
+    ? results
+    : results.filter(f => f.levelId === levelFilter || (f.linkedLevelIds ?? []).includes(levelFilter));
 
   return (
     <div className="min-h-screen pb-20">
@@ -40,9 +49,53 @@ export function SearchPage() {
           )}
         </div>
 
-        {results.length > 0 ? (
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowFilter(!showFilter)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+              levelFilter !== 'ALL'
+                ? 'bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400'
+                : 'bg-slate-100 dark:bg-slate-700 text-slate-500'
+            }`}
+          >
+            <Filter size={14} />
+            {levelFilter === 'ALL' ? t('levelFilter') : levelFilter}
+          </button>
+        </div>
+
+        {showFilter && (
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => { setLevelFilter('ALL'); setShowFilter(false); }}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                levelFilter === 'ALL'
+                  ? 'bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400'
+                  : 'bg-slate-100 dark:bg-slate-700 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-600'
+              }`}
+            >
+              {t('allFiles')}
+            </button>
+            {LEVEL_IDS.map(lid => {
+              const colors = LEVEL_COLORS[lid];
+              const active = levelFilter === lid;
+              return (
+                <button
+                  key={lid}
+                  onClick={() => { setLevelFilter(lid); setShowFilter(false); }}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors border-2 ${
+                    active ? `${colors.border} ${colors.bgLight} ${colors.text}` : 'border-transparent bg-slate-100 dark:bg-slate-700 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-600'
+                  }`}
+                >
+                  {lid}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {filteredResults.length > 0 ? (
           <div className="space-y-2">
-            {results.map(f => (
+            {filteredResults.map(f => (
               <FileCard key={f.id} file={f} onOpen={setPreviewFile} onChanged={() => search(query)} />
             ))}
           </div>

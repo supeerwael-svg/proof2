@@ -18,6 +18,7 @@ export interface SectionDef {
   order: number;
   folders: FolderDef[];
   generate?: GenerateSpec;
+  useLevels?: boolean;
 }
 
 interface SubfolderName {

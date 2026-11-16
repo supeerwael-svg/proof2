@@ -1,8 +1,10 @@
 import { db } from '@/db/database';
 import { SECTIONS, type SectionDef, type FolderDef } from './structure';
+import { LEVEL_IDS } from '@/types';
+import { LEVEL_DEFAULTS } from '@/config/levels';
 import type {
   SectionEntity, FolderEntity, UserEntity, AcademicYearEntity,
-  SchoolEntity, SettingsEntity,
+  SchoolEntity, SettingsEntity, LevelEntity,
 } from '@/types';
 
 const DEFAULT_SCHOOL_ID = 'school-001';
@@ -28,7 +30,6 @@ async function seedSectionsAndFolders(yearId: string) {
   const existingSections = await db.sections.where('academicYearId').equals(yearId).count();
   if (existingSections > 0) return;
 
-  // Clear any stale sections/folders from a previous ID scheme
   await db.sections.clear();
   await db.folders.clear();
 
@@ -62,6 +63,7 @@ async function seedSectionsAndFolders(yearId: string) {
       nameFr: s.nameFr,
       icon: s.icon,
       order: i,
+      useLevels: s.useLevels ?? false,
     });
     walkFolders(s.key, s.folders, null);
   });
@@ -140,11 +142,30 @@ async function seedSettings() {
   await db.settings.add(settings);
 }
 
+async function seedLevels() {
+  const existing = await db.levels.count();
+  if (existing > 0) return;
+  const entities: LevelEntity[] = LEVEL_IDS.map((levelId, i) => {
+    const defaults = LEVEL_DEFAULTS[levelId];
+    return {
+      ...baseEntity({}),
+      levelId,
+      name: defaults.ar,
+      nameEn: defaults.en,
+      nameFr: defaults.fr,
+      color: ['#10b981', '#0ea5e9', '#f59e0b', '#f43f5e'][i],
+      order: i,
+    };
+  });
+  await db.levels.bulkAdd(entities);
+}
+
 export async function seedDatabase() {
   await seedSchool();
   await seedAcademicYear();
   await seedDefaultAdmin();
   await seedSettings();
+  await seedLevels();
   await seedSectionsAndFolders(DEFAULT_YEAR_ID);
 }
 

@@ -6,17 +6,20 @@ import { useRouter } from '@/contexts/RouterContext';
 import { FileCard } from './FileCard';
 import { FileGridCard } from './FileGridCard';
 import { FileUploader } from './FileUploader';
+import { LevelBadge } from './LevelBadge';
+import { LEVEL_COLORS } from '@/config/levels';
 import { DocumentViewer } from '@/viewer/DocumentViewer';
 import { formatBytes } from '@/utils/format';
-import type { FileEntity, FolderEntity } from '@/types';
+import type { FileEntity, FolderEntity, LevelId } from '@/types';
 
 interface FileListProps {
   folderId: string;
   sectionKey: string;
   onChanged?: () => void;
+  levelId?: LevelId | null;
 }
 
-export function FileList({ folderId, sectionKey, onChanged }: FileListProps) {
+export function FileList({ folderId, sectionKey, onChanged, levelId = null }: FileListProps) {
   const { t, lang, dir } = useI18n();
   const { navigate } = useRouter();
   const [files, setFiles] = useState<FileEntity[]>([]);
@@ -44,7 +47,13 @@ export function FileList({ folderId, sectionKey, onChanged }: FileListProps) {
       setCurrentFolder(null);
       setSubfolders([]);
     }
-    const f = await FilesService.getFilesByFolder(folderId);
+
+    let f: FileEntity[];
+    if (levelId) {
+      f = await FilesService.getFilesByFolderAndLevel(folderId, levelId);
+    } else {
+      f = await FilesService.getFilesByFolder(folderId);
+    }
     const sorted = [...f].sort((a, b) => {
       if (sortBy === 'name') return a.name.localeCompare(b.name, lang);
       if (sortBy === 'size') return b.size - a.size;
@@ -54,7 +63,7 @@ export function FileList({ folderId, sectionKey, onChanged }: FileListProps) {
     const stats = await FilesService.getFolderStats(folderId);
     setFolderStats(stats);
     setVisibleCount(30);
-  }, [folderId, sortBy, lang, isRootSentinel]);
+  }, [folderId, sortBy, lang, isRootSentinel, levelId]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -87,6 +96,12 @@ export function FileList({ folderId, sectionKey, onChanged }: FileListProps) {
           <span>{folderStats.count} {t('files')}</span>
           <span>·</span>
           <span>{formatBytes(folderStats.size)}</span>
+          {levelId && (
+            <>
+              <span>·</span>
+              <LevelBadge levelId={levelId} size="sm" />
+            </>
+          )}
         </div>
       )}
 
@@ -115,7 +130,7 @@ export function FileList({ folderId, sectionKey, onChanged }: FileListProps) {
         </div>
       )}
 
-      <FileUploader folderId={folderId} sectionKey={sectionKey} onUploaded={handleChanged} />
+      <FileUploader folderId={folderId} sectionKey={sectionKey} onUploaded={handleChanged} levelId={levelId} />
 
       {files.length > 0 ? (
         <div className="space-y-2">
@@ -174,7 +189,7 @@ export function FileList({ folderId, sectionKey, onChanged }: FileListProps) {
       ) : subfolders.length === 0 ? (
         <div className="text-center py-12 text-slate-400 dark:text-slate-500">
           <FileQuestion size={48} className="mx-auto mb-3 opacity-50" />
-          <p className="font-semibold">{t('empty')}</p>
+          <p className="font-semibold">{levelId ? t('noLevelFiles') : t('empty')}</p>
           <p className="text-sm mt-1">{t('emptyHint')}</p>
         </div>
       ) : null}
