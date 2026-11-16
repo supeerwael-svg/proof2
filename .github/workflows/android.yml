@@ -20,8 +20,19 @@ jobs:
     - name: Install Dependencies
       run: npm install
 
-    - name: Install Capacitor CLI and Core
-      run: npm install @capacitor/cli @capacitor/core
+    - name: Install Capacitor Core, CLI and Android
+      run: npm install @capacitor/cli @capacitor/core @capacitor/android
+
+    - name: Create Capacitor Config if missing
+      run: |
+        if [ ! -f capacitor.config.json ]; then
+          echo '{
+            "appId": "com.teacherportfolio.app",
+            "appName": "محفظة الأستاذ",
+            "webDir": "dist",
+            "bundledWebRuntime": false
+          }' > capacitor.config.json
+        fi
 
     - name: Build Web App
       run: npm run build
