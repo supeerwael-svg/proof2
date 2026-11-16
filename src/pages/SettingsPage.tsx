@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Sun, Moon, Globe, Download, Upload, HardDrive, Shield, LogOut, Type, FileArchive, CalendarDays, AlertTriangle, Loader2, Palette, Pipette, Check } from 'lucide-react';
+import { Sun, Moon, Globe, Download, Upload, HardDrive, Shield, LogOut, Type, FileArchive, CalendarDays, AlertTriangle, Loader2, Palette, Pipette, Check, BookOpen } from 'lucide-react';
+import { getPrefs, setPrefs, type ReadingMode, type SwipeDirection } from '@/viewer/readerPrefs';
 import { Header } from '@/components/Header';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/i18n/I18nContext';
@@ -18,6 +19,8 @@ export function SettingsPage() {
   const [exporting, setExporting] = useState<null | 'json' | 'zip'>(null);
   const [importing, setImporting] = useState(false);
   const [showReminder, setShowReminder] = useState(false);
+  const [forcePrefs, setForcePrefs] = useState(0);
+  const viewerPrefs = (() => { void forcePrefs; return getPrefs(); })();
 
   useEffect(() => {
     StorageService.getUsage().then(setUsage);
@@ -241,7 +244,7 @@ export function SettingsPage() {
                 {(['continuous', 'paged'] as ReadingMode[]).map(m => (
                   <button
                     key={m}
-                    onClick={() => { setPrefs({ readingMode: m }); forcePrefs(n => n + 1); }}
+                    onClick={() => { setPrefs({ readingMode: m }); setForcePrefs(n => n + 1); }}
                     className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
                       viewerPrefs.readingMode === m ? 'text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
                     }`}
@@ -258,7 +261,7 @@ export function SettingsPage() {
                 {(['auto', 'rtl', 'ltr'] as SwipeDirection[]).map(d => (
                   <button
                     key={d}
-                    onClick={() => { setPrefs({ swipeDirection: d }); forcePrefs(n => n + 1); }}
+                    onClick={() => { setPrefs({ swipeDirection: d }); setForcePrefs(n => n + 1); }}
                     className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
                       viewerPrefs.swipeDirection === d ? 'text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
                     }`}
