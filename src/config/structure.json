@@ -27,20 +27,21 @@
       "nameFr": "Leçons & Notes",
       "icon": "BookOpen",
       "order": 1,
+      "useLevels": true,
       "folders": [
         {
           "key": "lessons_docs",
           "name": "الدروس",
           "nameEn": "Lessons",
           "nameFr": "Leçons",
-          "generate": { "type": "levels_subjects", "subjects": ["history", "geo", "pe"] }
+          "generate": { "type": "levels_subjects", "subjects": ["history", "geo", "civic_ed"] }
         },
         {
           "key": "lessons_notes",
           "name": "المذكرات",
           "nameEn": "Notes",
           "nameFr": "Notes",
-          "generate": { "type": "levels_subjects", "subjects": ["history", "geo", "pe"] }
+          "generate": { "type": "levels_subjects", "subjects": ["history", "geo", "civic_ed"] }
         }
       ]
     },

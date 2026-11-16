@@ -160,6 +160,53 @@ async function seedLevels() {
   await db.levels.bulkAdd(entities);
 }
 
+async function syncStructure(yearId: string) {
+  const sectionDefs = await db.sections.where('academicYearId').equals(yearId).toArray();
+  for (const s of sectionDefs) {
+    if (s.deletedAt !== null) continue;
+    const def = SECTIONS.find(d => d.key === s.key);
+    if (!def) continue;
+    await db.sections.update(s.id, {
+      name: def.name,
+      nameEn: def.nameEn,
+      nameFr: def.nameFr,
+      icon: def.icon,
+      useLevels: def.useLevels ?? false,
+      updatedAt: now(),
+    });
+  }
+
+  const existing = await db.folders.where('academicYearId').equals(yearId).toArray();
+  const idByKey = new Map<string, string>();
+  existing.forEach(f => idByKey.set(`${f.sectionKey}:${f.key}`, f.id));
+
+  const toAdd: FolderEntity[] = [];
+  function walk(sectionKey: string, folders: FolderDef[], parentKey: string | null) {
+    folders.forEach((f, i) => {
+      const compositeKey = `${sectionKey}:${f.key}`;
+      if (!idByKey.has(compositeKey)) {
+        const id = uuid();
+        toAdd.push({
+          ...baseEntity({ academicYearId: yearId }),
+          id,
+          key: f.key,
+          sectionKey,
+          parentFolderId: parentKey ? idByKey.get(`${sectionKey}:${parentKey}`) ?? null : null,
+          name: f.name,
+          nameEn: f.nameEn,
+          nameFr: f.nameFr,
+          order: i,
+        });
+        idByKey.set(compositeKey, id);
+      }
+      if (f.folders) walk(sectionKey, f.folders, f.key);
+    });
+  }
+  SECTIONS.forEach(s => walk(s.key, s.folders, null));
+
+  if (toAdd.length > 0) await db.folders.bulkAdd(toAdd);
+}
+
 export async function seedDatabase() {
   await seedSchool();
   await seedAcademicYear();
@@ -167,6 +214,10 @@ export async function seedDatabase() {
   await seedSettings();
   await seedLevels();
   await seedSectionsAndFolders(DEFAULT_YEAR_ID);
+  const allYears = await db.academicYears.toArray();
+  for (const y of allYears) {
+    if (y.deletedAt === null) await syncStructure(y.id);
+  }
 }
 
 export { DEFAULT_SCHOOL_ID, DEFAULT_YEAR_ID, DEFAULT_YEAR_KEY };

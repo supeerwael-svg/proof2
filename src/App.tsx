@@ -20,6 +20,7 @@ import { GeneralSectionPage } from '@/pages/GeneralSectionPage';
 import { AcademicYearPage } from '@/pages/AcademicYearPage';
 import { seedDatabase } from '@/config/seed';
 import { StorageService } from '@/services';
+import type { LevelId } from '@/types';
 
 function RouteRenderer() {
   const { route } = useRouter();
@@ -31,7 +32,7 @@ function RouteRenderer() {
     case 'sections': return <SectionsPage />;
     case 'section': return <SectionPage sectionKey={route.key} />;
     case 'section-level': return <SectionLevelPage sectionKey={route.key} levelId={route.levelId} />;
-    case 'folder': return <FolderPage folderId={route.folderId} />;
+    case 'folder': return <FolderPage folderId={route.folderId} levelId={(route.levelId as LevelId | null | undefined) ?? null} />;
     case 'forum': return <ForumPage />;
     case 'seminars': return <SeminarsPage />;
     case 'academic-year': return <AcademicYearPage />;
@@ -67,10 +68,14 @@ function App() {
   const [seeded, setSeeded] = useState(false);
 
   useEffect(() => {
-    seedDatabase().then(() => {
-      StorageService.requestPersistent();
-      setSeeded(true);
-    });
+    seedDatabase()
+      .catch((err) => {
+        console.error('Seed failed:', err);
+      })
+      .finally(() => {
+        StorageService.requestPersistent();
+        setSeeded(true);
+      });
   }, []);
 
   if (!seeded) {

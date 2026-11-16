@@ -10,7 +10,7 @@ type Route =
   | { name: 'sections' }
   | { name: 'section'; key: string }
   | { name: 'section-level'; key: string; levelId: string }
-  | { name: 'folder'; folderId: string }
+  | { name: 'folder'; folderId: string; levelId?: string | null }
   | { name: 'forum' }
   | { name: 'forum-topic'; topicId: string }
   | { name: 'chat' }

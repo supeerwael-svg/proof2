@@ -90,7 +90,7 @@ export function SectionLevelPage({ sectionKey, levelId }: SectionLevelPageProps)
             {levelFolders.map(folder => (
               <button
                 key={folder.id}
-                onClick={() => navigate({ name: 'folder', folderId: folder.id })}
+                onClick={() => navigate({ name: 'folder', folderId: folder.id, levelId: isAll ? null : levelIdTyped })}
                 className="card p-4 flex items-center gap-3 hover:shadow-md hover:border-primary-300 dark:hover:border-primary-700 transition-all w-full text-start"
               >
                 <div className="w-10 h-10 rounded-xl bg-primary-50 dark:bg-primary-900/20 flex items-center justify-center shrink-0">
