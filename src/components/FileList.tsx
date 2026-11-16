@@ -6,7 +6,7 @@ import { useRouter } from '@/contexts/RouterContext';
 import { FileCard } from './FileCard';
 import { FileGridCard } from './FileGridCard';
 import { FileUploader } from './FileUploader';
-import { FilePreviewer } from './FilePreviewer';
+import { DocumentViewer } from '@/viewer/DocumentViewer';
 import { formatBytes } from '@/utils/format';
 import type { FileEntity, FolderEntity } from '@/types';
 
@@ -179,7 +179,7 @@ export function FileList({ folderId, sectionKey, onChanged }: FileListProps) {
         </div>
       ) : null}
 
-      <FilePreviewer
+      <DocumentViewer
         file={previewFile}
         onClose={() => setPreviewFile(null)}
         onShowLinked={(f) => setPreviewFile(f)}

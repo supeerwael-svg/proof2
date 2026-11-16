@@ -7,7 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useRouter } from '@/contexts/RouterContext';
 import { FileIcon } from '@/components/FileIcon';
-import { FilePreviewer } from '@/components/FilePreviewer';
+import { DocumentViewer } from '@/viewer/DocumentViewer';
 import { getIcon, iconChoices } from '@/components/iconMap';
 import { SECTION_COLORS } from '@/config/palettes';
 import { formatDate, timeAgo } from '@/utils/format';
@@ -526,7 +526,7 @@ export function HomePage() {
         </div>
       </div>
 
-      <FilePreviewer file={previewFile} onClose={() => setPreviewFile(null)} />
+      <DocumentViewer file={previewFile} onClose={() => setPreviewFile(null)} />
 
       {/* Edit Section Modal */}
       {editingSection && (

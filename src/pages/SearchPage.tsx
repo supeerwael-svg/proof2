@@ -4,7 +4,7 @@ import { Header } from '@/components/Header';
 import { FilesService, FoldersService } from '@/services';
 import { useI18n } from '@/i18n/I18nContext';
 import { FileCard } from '@/components/FileCard';
-import { FilePreviewer } from '@/components/FilePreviewer';
+import { DocumentViewer } from '@/viewer/DocumentViewer';
 import type { FileEntity } from '@/types';
 
 export function SearchPage() {
@@ -50,7 +50,7 @@ export function SearchPage() {
           <p className="text-sm text-slate-400 text-center py-8">{t('noFilesFound')}</p>
         ) : null}
       </div>
-      <FilePreviewer file={previewFile} onClose={() => setPreviewFile(null)} />
+      <DocumentViewer file={previewFile} onClose={() => setPreviewFile(null)} />
     </div>
   );
 }

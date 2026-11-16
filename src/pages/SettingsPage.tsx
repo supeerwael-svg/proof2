@@ -228,6 +228,50 @@ export function SettingsPage() {
           </div>
         </div>
 
+        {/* Document viewer */}
+        <div>
+          <h2 className="text-base font-bold text-slate-800 dark:text-slate-200 mb-3 flex items-center gap-2">
+            <BookOpen size={18} style={{ color: 'var(--c-primary-600)' }} />
+            عارض المستندات
+          </h2>
+          <div className="card p-4 space-y-4">
+            <div>
+              <span className="text-sm font-semibold text-slate-700 dark:text-slate-300 block mb-2">وضع القراءة الافتراضي</span>
+              <div className="flex gap-2">
+                {(['continuous', 'paged'] as ReadingMode[]).map(m => (
+                  <button
+                    key={m}
+                    onClick={() => { setPrefs({ readingMode: m }); forcePrefs(n => n + 1); }}
+                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                      viewerPrefs.readingMode === m ? 'text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                    }`}
+                    style={viewerPrefs.readingMode === m ? { backgroundColor: 'var(--c-primary-600)' } : undefined}
+                  >
+                    {m === 'continuous' ? 'تمرير متواصل' : 'صفحة بصفحة'}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <span className="text-sm font-semibold text-slate-700 dark:text-slate-300 block mb-2">اتجاه سحب الصفحات</span>
+              <div className="flex gap-2">
+                {(['auto', 'rtl', 'ltr'] as SwipeDirection[]).map(d => (
+                  <button
+                    key={d}
+                    onClick={() => { setPrefs({ swipeDirection: d }); forcePrefs(n => n + 1); }}
+                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                      viewerPrefs.swipeDirection === d ? 'text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                    }`}
+                    style={viewerPrefs.swipeDirection === d ? { backgroundColor: 'var(--c-primary-600)' } : undefined}
+                  >
+                    {d === 'auto' ? 'تلقائي' : d === 'rtl' ? 'عربي (يمين←يسار)' : 'فرنسي/إنجليزي'}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Storage */}
         <div>
           <h2 className="text-base font-bold text-slate-800 dark:text-slate-200 mb-3">{t('storage')}</h2>
