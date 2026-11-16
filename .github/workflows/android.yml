@@ -1,29 +1,18 @@
-name: Build Android APK
-
-on:
-  push:
-    branches: [ main ]
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-
-    - name: Set up Node.js
+- name: Set up Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '22'
+        node-version: '20'
 
     - name: Install Dependencies
       run: npm install
 
+    # تثبيت أدوات Capacitor بشكل صريح لضمان توفرها
+    - name: Install Capacitor CLI and Core
+      run: npm install @capacitor/cli @capacitor/core
+
     - name: Build Web App
       run: npm run build
 
-    # هذه الخطوة تنشئ مجلد android تلقائياً في السيرفر إذا لم يكن مرفوعاً في المستودع
     - name: Add Capacitor Android Platform
       run: npx cap add android
 
